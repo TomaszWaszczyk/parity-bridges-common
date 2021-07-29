@@ -167,7 +167,17 @@ pub mod pallet {
 			let _enacted = try_enact_authority_change::<T, I>(&finality_target, set_id)?;
 			<RequestCount<T, I>>::mutate(|count| *count += 1);
 			insert_header::<T, I>(finality_target, hash);
-			log::info!(target: "runtime::bridge-grandpa", "Succesfully imported finalized header with hash {:?}!", hash);
+			log::info!(
+				target: "runtime::bridge-grandpa",
+				"Succesfully imported finalized header with hash {:?}!. Weight: {} (pre: {}, anc: {})",
+				hash,
+				T::WeightInfo::submit_finality_proof(
+					justification.commit.precommits.len().try_into().unwrap_or(u32::MAX),
+					justification.votes_ancestries.len().try_into().unwrap_or(u32::MAX),
+				),
+				justification.commit.precommits.len(),
+				justification.votes_ancestries.len(),
+			);
 
 			Ok(().into())
 		}
