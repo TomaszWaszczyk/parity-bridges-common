@@ -299,8 +299,9 @@ impl<C: Chain> Client<C> {
 		let transaction_nonce = self.next_account_index(extrinsic_signer).await?;
 		self.jsonrpsee_execute(move |client| async move {
 			let extrinsic = prepare_extrinsic(transaction_nonce);
+			let tx_size = extrinsic.len();
 			let tx_hash = Substrate::<C>::author_submit_extrinsic(&*client, extrinsic).await?;
-			log::trace!(target: "bridge", "Sent transaction to {} node: {:?}", C::NAME, tx_hash);
+			log::trace!(target: "bridge", "Sent transaction to {} node: {:?}. Size: {}", C::NAME, tx_hash, tx_size);
 			Ok(tx_hash)
 		})
 		.await
